@@ -10,15 +10,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 :root{
-  --bg:#0f0f0d;--bg2:#1a1a17;--bg3:#242420;--bg4:#2e2e29;
-  --border:#3a3a34;--border2:#4a4a43;
-  --text:#f0f0ea;--text2:#a3a39a;--text3:#6b6b63;
-  --green:#2dd4a0;--green-dim:#0d3d2e;--green-text:#2dd4a0;
-  --red:#f05c5c;--red-dim:#3d1212;--red-text:#f28080;
-  --orange:#f0a030;--orange-dim:#3d2800;--orange-text:#f0b855;
-  --blue:#60a8f0;--blue-dim:#0d2440;--blue-text:#80bdf5;
-  --pink:#e060a0;--pink-dim:#3d1030;--pink-text:#f080c0;
-  --accent:#2dd4a0;
+  --bg:#f8f8f6;--bg2:#ffffff;--bg3:#f1f1ee;--bg4:#e8e8e4;
+  --border:#e0e0db;--border2:#c8c8c2;
+  --text:#1a1a18;--text2:#6b6b65;--text3:#a3a39d;
+  --green:#0d8f65;--green-dim:#e6f7f1;--green-text:#0a6e4e;
+  --red:#d93636;--red-dim:#fdeaea;--red-text:#b02020;
+  --orange:#c47a10;--orange-dim:#fef3e2;--orange-text:#9a5f08;
+  --blue:#2a6fc4;--blue-dim:#e8f1fc;--blue-text:#1a539a;
+  --pink:#b03878;--pink-dim:#fce8f3;--pink-text:#8a2a5e;
+  --accent:#0d8f65;
   --font:'DM Sans',system-ui,sans-serif;
   --mono:'DM Mono','Courier New',monospace;
   --r:8px;--r-lg:14px;
@@ -41,7 +41,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .lfield input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--text);font-size:14px;font-family:var(--font);}
 .lfield input:focus{outline:none;border-color:var(--accent);}
 .login-err{font-size:12px;color:var(--red-text);margin-bottom:10px;min-height:18px;}
-.btn-login{width:100%;padding:10px;background:var(--accent);color:#0a1a14;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.btn-login{width:100%;padding:10px;background:var(--accent);color:#ffffff;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);}
 .btn-login:hover{opacity:.88;}
 .login-hint{font-size:11px;color:var(--text3);margin-top:10px;text-align:center;line-height:1.5;}
 
@@ -54,8 +54,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .user-badge i{color:var(--accent);}
 .btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--r);font-size:13px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--font);transition:all .15s;}
 .btn:hover{background:var(--bg3);color:var(--text);}
-.btn-accent{background:var(--accent);color:#0a1a14;border-color:var(--accent);font-weight:600;}
-.btn-accent:hover{opacity:.85;color:#0a1a14;}
+.btn-accent{background:var(--accent);color:#ffffff;border-color:var(--accent);font-weight:600;}
+.btn-accent:hover{opacity:.85;color:#ffffff;}
 .btn-sm{padding:4px 10px;font-size:12px;}
 .btn-danger{border-color:var(--red-dim);color:var(--red-text);}
 .btn-danger:hover{background:var(--red-dim);}
@@ -624,7 +624,7 @@ function exportPDF(){
   rows.push(['','','','','Saldo total:',minToStr(acc),'']);
   doc.autoTable({startY:46,head:[['Data','Dia','Status','Entrada','Saída','Saldo','Obs']],body:rows,
     styles:{fontSize:8,cellPadding:2},
-    headStyles:{fillColor:[20,20,18],textColor:[220,220,210],fontStyle:'bold'},
+    headStyles:{fillColor:[13,105,75],textColor:[255,255,255],fontStyle:'bold'},
     alternateRowStyles:{fillColor:[248,248,245]},
     columnStyles:{0:{cellWidth:18},1:{cellWidth:10},2:{cellWidth:24},3:{cellWidth:16},4:{cellWidth:16},5:{cellWidth:18},6:{cellWidth:50}}});
   doc.save(`frequencia_${u}_${MESES[mes]}_${ano}.pdf`);
@@ -673,7 +673,7 @@ function exportAdminPDF(){
     rows.push(['Total',minToStr(tP,false),tR>0?minToStr(tR,false):'—',tR>0?minToStr(tR-tP):'—']);
     doc.autoTable({startY:startY+5,head:[['Mês','Previsto','Realizado','Saldo']],body:rows,
       styles:{fontSize:9,cellPadding:2.5},
-      headStyles:{fillColor:[20,20,18],textColor:[220,220,210],fontStyle:'bold'},
+      headStyles:{fillColor:[13,105,75],textColor:[255,255,255],fontStyle:'bold'},
       alternateRowStyles:{fillColor:[248,248,245]}});
     startY=doc.lastAutoTable.finalY+14;
   });
