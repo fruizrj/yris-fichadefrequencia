@@ -1,348 +1,474 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ficha de Frequência — Yris Saúde</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.19.0/fonts/tabler-icons.min.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Frequência — Yris Saúde</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.19.0/fonts/tabler-icons.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
-  :root {
-    --bg: #ffffff; --bg2: #f5f5f4; --border: #e2e2e0; --border2: #d0d0cc;
-    --text: #1a1a18; --text2: #6b6b67; --text3: #a3a39e;
-    --radius: 8px; --radius-lg: 12px;
-    --green: #1D9E75; --green-bg: #E1F5EE; --green-text: #0F6E56;
-    --red: #E24B4A; --red-bg: #FCEBEB; --red-text: #A32D2D;
-    --orange: #BA7517; --orange-bg: #FAEEDA; --orange-text: #854F0B;
-    --blue-bg: #E6F1FB; --blue-text: #185FA5;
-    --gray-bg: #F1EFE8; --gray-text: #5F5E5A;
-    --pink-bg: #FBEAF0; --pink-text: #993556;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg:#1c1c1a; --bg2:#252522; --border:#3a3a36; --border2:#4a4a46;
-      --text:#f0f0ec; --text2:#a3a39e; --text3:#6b6b67;
-    }
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
-  .app { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
-  .top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 1.75rem; flex-wrap: wrap; }
-  .logo { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.02em; }
-  .logo span { color: var(--green); }
-  .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .controls select { border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 10px; font-size: 14px; background: var(--bg); color: var(--text); cursor: pointer; }
-  .btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; border-radius: var(--radius); font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text2); transition: background 0.15s; }
-  .btn:hover { background: var(--bg2); }
-  .btn-primary { background: var(--text); color: var(--bg); border-color: var(--text); }
-  .btn-primary:hover { opacity: 0.85; }
-  .tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; }
-  .tab { padding: 6px 18px; border-radius: var(--radius); border: 1px solid var(--border); font-size: 13px; cursor: pointer; background: var(--bg); color: var(--text2); transition: all 0.15s; }
-  .tab.active { background: var(--bg2); color: var(--text); font-weight: 500; border-color: var(--border2); }
-  .jornada-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); background: var(--bg2); border-radius: var(--radius); padding: 6px 12px; margin-bottom: 1.25rem; }
-  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
-  .stat { background: var(--bg2); border-radius: var(--radius); padding: 12px 14px; }
-  .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
-  .stat-value { font-size: 22px; font-weight: 600; color: var(--text); }
-  .stat-value.ok { color: var(--green); } .stat-value.warn { color: var(--orange); } .stat-value.bad { color: var(--red); }
-  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead { background: var(--bg2); }
-  th { padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border-bottom: 1px solid var(--border); }
-  td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--bg2); }
-  .dim td { opacity: 0.38; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
-  .badge-ok      { background: var(--green-bg);  color: var(--green-text); }
-  .badge-falta   { background: var(--red-bg);    color: var(--red-text); }
-  .badge-folga   { background: var(--gray-bg);   color: var(--gray-text); }
-  .badge-ferias  { background: var(--orange-bg); color: var(--orange-text); }
-  .badge-half    { background: var(--blue-bg);   color: var(--blue-text); }
-  .badge-feriado { background: var(--pink-bg);   color: var(--pink-text); }
-  .saldo-pos { color: var(--green); font-weight: 500; font-size: 12px; }
-  .saldo-neg { color: var(--red);   font-weight: 500; font-size: 12px; }
-  .saldo-zer { color: var(--text3); font-size: 12px; }
-  .edit-btn { background: transparent; border: 1px solid var(--border); border-radius: 6px; padding: 3px 7px; cursor: pointer; color: var(--text2); font-size: 13px; }
-  .edit-btn:hover { background: var(--bg2); }
-  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.25rem; }
-  /* Modal */
-  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
-  .overlay.open { display: flex; }
-  .modal { background: var(--bg); border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 1.5rem; width: 100%; max-width: 360px; max-height: 90vh; overflow-y: auto; }
-  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 1.25rem; }
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
-  .field input, .field select { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 7px 10px; font-size: 14px; background: var(--bg); color: var(--text); }
-  .field input:focus, .field select:focus { outline: none; border-color: var(--border2); }
-  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.5rem; }
+:root{
+  --bg:#0f0f0d;--bg2:#1a1a17;--bg3:#242420;--bg4:#2e2e29;
+  --border:#3a3a34;--border2:#4a4a43;
+  --text:#f0f0ea;--text2:#a3a39a;--text3:#6b6b63;
+  --green:#2dd4a0;--green-dim:#0d3d2e;--green-text:#2dd4a0;
+  --red:#f05c5c;--red-dim:#3d1212;--red-text:#f28080;
+  --orange:#f0a030;--orange-dim:#3d2800;--orange-text:#f0b855;
+  --blue:#60a8f0;--blue-dim:#0d2440;--blue-text:#80bdf5;
+  --pink:#e060a0;--pink-dim:#3d1030;--pink-text:#f080c0;
+  --accent:#2dd4a0;
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --r:8px;--r-lg:14px;
+}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+
+/* LOGIN */
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:2.5rem 2rem;width:100%;max-width:380px;}
+.login-logo{font-size:22px;font-weight:600;margin-bottom:6px;letter-spacing:-.02em;}
+.login-logo span{color:var(--accent);}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:1.75rem;}
+.login-tabs{display:flex;gap:6px;margin-bottom:1.5rem;}
+.login-tab{flex:1;padding:7px 4px;border-radius:var(--r);border:1px solid var(--border);background:transparent;color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);transition:all .15s;}
+.login-tab.active{background:var(--bg3);color:var(--text);border-color:var(--border2);}
+.lfield{margin-bottom:14px;}
+.lfield label{display:block;font-size:11px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;}
+.lfield input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--text);font-size:14px;font-family:var(--font);}
+.lfield input:focus{outline:none;border-color:var(--accent);}
+.login-err{font-size:12px;color:var(--red-text);margin-bottom:10px;min-height:18px;}
+.btn-login{width:100%;padding:10px;background:var(--accent);color:#0a1a14;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.btn-login:hover{opacity:.88;}
+.login-hint{font-size:11px;color:var(--text3);margin-top:10px;text-align:center;line-height:1.5;}
+
+/* APP */
+#app{display:none;max-width:1060px;margin:0 auto;padding:1.5rem 1rem 4rem;}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:1.75rem;flex-wrap:wrap;}
+.logo{font-size:16px;font-weight:600;letter-spacing:-.02em;}
+.logo span{color:var(--accent);}
+.user-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--bg3);border-radius:20px;padding:4px 12px;border:1px solid var(--border);}
+.user-badge i{color:var(--accent);}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--r);font-size:13px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--font);transition:all .15s;}
+.btn:hover{background:var(--bg3);color:var(--text);}
+.btn-accent{background:var(--accent);color:#0a1a14;border-color:var(--accent);font-weight:600;}
+.btn-accent:hover{opacity:.85;color:#0a1a14;}
+.btn-sm{padding:4px 10px;font-size:12px;}
+.btn-danger{border-color:var(--red-dim);color:var(--red-text);}
+.btn-danger:hover{background:var(--red-dim);}
+
+.view-tabs{display:flex;gap:6px;margin-bottom:1.5rem;border-bottom:1px solid var(--border);}
+.view-tab{padding:8px 18px;border-radius:var(--r) var(--r) 0 0;border:1px solid transparent;font-size:13px;cursor:pointer;background:transparent;color:var(--text2);font-family:var(--font);border-bottom:none;margin-bottom:-1px;}
+.view-tab.active{background:var(--bg2);color:var(--text);border-color:var(--border);border-bottom-color:var(--bg2);font-weight:500;}
+
+.ctrl-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;}
+.ctrl-row select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:6px 10px;color:var(--text);font-size:13px;cursor:pointer;font-family:var(--font);}
+.jornada-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--bg3);border-radius:20px;padding:5px 14px;border:1px solid var(--border);}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.5rem;margin-top:12px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;}
+.stat-label{font-size:10px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;}
+.stat-value{font-size:20px;font-weight:600;font-family:var(--mono);color:var(--text);}
+.stat-value.ok{color:var(--green);}
+.stat-value.warn{color:var(--orange);}
+.stat-value.bad{color:var(--red);}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--bg2);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead{background:var(--bg3);}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;border-bottom:1px solid var(--border);}
+td{padding:7px 12px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg3);}
+.row-dim td{opacity:.3;}
+
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.b-ok{background:var(--green-dim);color:var(--green-text);}
+.b-falta{background:var(--red-dim);color:var(--red-text);}
+.b-folga{background:var(--bg4);color:var(--text2);}
+.b-ferias{background:var(--orange-dim);color:var(--orange-text);}
+.b-meio{background:var(--blue-dim);color:var(--blue-text);}
+.b-feriado{background:var(--pink-dim);color:var(--pink-text);}
+
+.saldo-pos{color:var(--green);font-family:var(--mono);font-size:12px;font-weight:500;}
+.saldo-neg{color:var(--red);font-family:var(--mono);font-size:12px;font-weight:500;}
+.saldo-zer{color:var(--text3);font-family:var(--mono);font-size:12px;}
+.mono{font-family:var(--mono);}
+
+.edit-btn{background:transparent;border:1px solid var(--border);border-radius:6px;padding:3px 7px;cursor:pointer;color:var(--text3);font-size:12px;}
+.edit-btn:hover{background:var(--bg3);color:var(--text2);}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:1.25rem;}
+
+/* admin */
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:2rem;}
+.admin-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
+.admin-card-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.admin-card-head .aname{font-weight:500;font-size:14px;}
+.admin-card-head .aunit{font-size:11px;color:var(--text3);margin-left:auto;}
+.admin-table{width:100%;border-collapse:collapse;font-size:12px;}
+.admin-table th{padding:7px 12px;text-align:left;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);background:var(--bg3);}
+.admin-table td{padding:7px 12px;border-bottom:1px solid var(--border);}
+.admin-table tr:last-child td{border-bottom:none;}
+.admin-table tr:hover td{background:var(--bg3);}
+.admin-table .total-row td{border-top:1px solid var(--border2);font-weight:600;}
+.section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;margin-top:2rem;}
+
+/* modals */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center;padding:1rem;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:1.5rem;width:100%;max-width:380px;max-height:92vh;overflow-y:auto;}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:1.25rem;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;}
+.field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;color:var(--text);font-size:13px;font-family:var(--font);}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;}
+.modal-err{font-size:12px;color:var(--red-text);min-height:18px;margin-bottom:6px;}
 </style>
 </head>
 <body>
-<div class="app">
 
-  <div class="top-bar">
-    <div class="logo">Yris <span>Saúde</span> &nbsp;·&nbsp; Frequência</div>
-    <div class="controls">
-      <select id="selMes"></select>
-      <select id="selAno"></select>
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Yris <span>Saúde</span></div>
+    <div class="login-sub">Controle de Frequência</div>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="setLoginTab('admin')">Admin</button>
+      <button class="login-tab" onclick="setLoginTab('barra')">Barra da Tijuca</button>
+      <button class="login-tab" onclick="setLoginTab('botafogo')">Botafogo</button>
     </div>
-    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn" onclick="exportarCSV()"><i class="ti ti-download"></i> Exportar CSV</button>
-      <button class="btn btn-primary" onclick="abrirModal()"><i class="ti ti-plus"></i> Lançar</button>
+    <div class="lfield">
+      <label>Senha</label>
+      <input type="password" id="loginPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
     </div>
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="login-hint" id="loginHint">Acesso total: ambas as unidades e painel administrativo.</div>
   </div>
-
-  <div class="tabs" id="tabsFunc"></div>
-  <div class="jornada-badge" id="jornadaInfo"></div>
-  <div class="summary" id="summary"></div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:72px">Data</th>
-          <th style="width:36px">Dia</th>
-          <th style="width:115px">Status</th>
-          <th style="width:70px">Entrada</th>
-          <th style="width:70px">Saída</th>
-          <th style="width:80px">Saldo</th>
-          <th>Obs</th>
-          <th style="width:40px"></th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
-
-  <div class="legend" id="legend"></div>
 </div>
 
-<!-- Modal -->
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="logo">Yris <span>Saúde</span></div>
+    <div class="user-badge"><i class="ti ti-user-circle"></i><span id="userLabel">—</span></div>
+    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="abrirTrocarSenha()"><i class="ti ti-lock"></i> Minha senha</button>
+      <button class="btn btn-sm" onclick="logout()"><i class="ti ti-logout"></i> Sair</button>
+    </div>
+  </div>
+
+  <div class="view-tabs" id="viewTabs"></div>
+
+  <!-- FICHA -->
+  <div id="viewFreq">
+    <div class="ctrl-row">
+      <select id="selMes"></select>
+      <select id="selAno"></select>
+      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-sm" onclick="exportXLS()"><i class="ti ti-file-spreadsheet"></i> XLS</button>
+        <button class="btn btn-sm" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> PDF</button>
+        <button class="btn btn-accent btn-sm" onclick="abrirModal()"><i class="ti ti-plus"></i> Lançar</button>
+      </div>
+    </div>
+    <div class="jornada-pill" id="jornadaInfo"></div>
+    <div class="summary" id="summary"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:70px">Data</th><th style="width:34px">Dia</th>
+          <th style="width:112px">Status</th><th style="width:68px">Entrada</th>
+          <th style="width:68px">Saída</th><th style="width:84px">Saldo dia</th>
+          <th>Obs</th><th style="width:38px"></th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <!-- PAINEL ADMIN -->
+  <div id="viewAdmin" style="display:none;">
+    <div class="ctrl-row">
+      <select id="adminAno"></select>
+      <button class="btn btn-sm" onclick="exportAdminXLS()"><i class="ti ti-file-spreadsheet"></i> XLS</button>
+      <button class="btn btn-sm" onclick="exportAdminPDF()"><i class="ti ti-file-type-pdf"></i> PDF</button>
+    </div>
+    <div id="adminContent"></div>
+    <div class="section-title">Gerenciar senhas das funcionárias</div>
+    <div id="adminPwdPanel"></div>
+  </div>
+</div>
+
+<!-- MODAL LANÇAMENTO -->
 <div class="overlay" id="overlay">
   <div class="modal">
-    <h3 id="modalTitulo">Lançar registro</h3>
-    <div class="field">
-      <label>Unidade</label>
-      <select id="mFunc"></select>
-    </div>
-    <div class="field">
-      <label>Nome da funcionária</label>
-      <input type="text" id="mNome" placeholder="Nome completo" />
-    </div>
-    <div class="field">
-      <label>Data</label>
-      <input type="date" id="mData" />
-    </div>
-    <div class="field">
-      <label>Status</label>
+    <h3>Lançar registro</h3>
+    <div class="field"><label>Data</label><input type="date" id="mData"/></div>
+    <div class="field"><label>Status</label>
       <select id="mStatus">
-        <option value="presente">Presente</option>
-        <option value="falta">Falta</option>
-        <option value="folga">Folga</option>
-        <option value="ferias">Férias</option>
+        <option value="presente">Presente</option><option value="falta">Falta</option>
+        <option value="folga">Folga</option><option value="ferias">Férias</option>
         <option value="meio">Meio período</option>
       </select>
     </div>
-    <div class="field">
-      <label>Entrada</label>
-      <input type="time" id="mEntrada" />
-    </div>
-    <div class="field">
-      <label>Saída</label>
-      <input type="time" id="mSaida" />
-    </div>
-    <div class="field">
-      <label>Observação</label>
-      <input type="text" id="mObs" placeholder="opcional" />
-    </div>
+    <div class="field"><label>Entrada</label><input type="time" id="mEntrada"/></div>
+    <div class="field"><label>Saída</label><input type="time" id="mSaida"/></div>
+    <div class="field"><label>Observação</label><input type="text" id="mObs" placeholder="opcional"/></div>
     <div class="modal-footer">
       <button class="btn" onclick="fecharModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvar()">Salvar</button>
+      <button class="btn btn-accent" onclick="salvar()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SENHA -->
+<div class="overlay" id="overlayPwd">
+  <div class="modal">
+    <h3>Alterar senha</h3>
+    <div class="field"><label>Senha atual</label><input type="password" id="pwdAtual"/></div>
+    <div class="field"><label>Nova senha</label><input type="password" id="pwdNova"/></div>
+    <div class="field"><label>Confirmar nova senha</label><input type="password" id="pwdConfirm"/></div>
+    <div class="modal-err" id="pwdErr"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="fecharPwd()">Cancelar</button>
+      <button class="btn btn-accent" onclick="salvarSenha()">Salvar</button>
     </div>
   </div>
 </div>
 
 <script>
-const SK = 'yris_freq_v3';
-const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const DIAS  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-
-const JORNADAS = {
-  barra:    { entrada:'08:00', saida:'17:30', almoco:60, sabado:false, entradaSab:'', saidaSab:'', label:'Seg–Sex  |  8h às 17h30 (almoço 12h–13h)' },
-  botafogo: { entrada:'08:00', saida:'17:00', almoco:0,  sabado:true,  entradaSab:'08:00', saidaSab:'12:00', label:'Seg–Sex  |  8h às 17h   +   Sáb  8h às 12h' }
+// ── CONSTANTES ──────────────────────────────
+const SK='yris_v4';
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIAS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const JORNADAS={
+  barra:{entrada:'08:00',saida:'17:30',almoco:60,sabado:false,entradaSab:'',saidaSab:'',
+         label:'Seg–Sex  |  8h às 17h30  (almoço 12h–13h)'},
+  botafogo:{entrada:'08:00',saida:'17:00',almoco:0,sabado:true,entradaSab:'08:00',saidaSab:'12:00',
+            label:'Seg–Sex  |  8h às 17h   +   Sáb 8h às 12h'}
+};
+const STATUS_META={
+  presente:{label:'Presente',cls:'b-ok'},falta:{label:'Falta',cls:'b-falta'},
+  folga:{label:'Folga',cls:'b-folga'},ferias:{label:'Férias',cls:'b-ferias'},
+  meio:{label:'Meio período',cls:'b-meio'},feriado:{label:'Feriado',cls:'b-feriado'}
 };
 
-const FUNCIONARIAS = [
-  { id:'func_barra',    unidade:'barra',    nomeDefault:'Funcionária — Barra da Tijuca' },
-  { id:'func_botafogo', unidade:'botafogo', nomeDefault:'Funcionária — Botafogo' }
-];
+// ── ESTADO ───────────────────────────────────
+let db={},sessao=null,viewAtiva='barra',loginTab='admin',mes,ano,feriados;
 
-const STATUS_META = {
-  presente: { label:'Presente',     cls:'badge-ok' },
-  falta:    { label:'Falta',        cls:'badge-falta' },
-  folga:    { label:'Folga',        cls:'badge-folga' },
-  ferias:   { label:'Férias',       cls:'badge-ferias' },
-  meio:     { label:'Meio período', cls:'badge-half' },
-  feriado:  { label:'Feriado',      cls:'badge-feriado' }
-};
-
-let registros=[], nomes={}, funcIdx=0, mes, ano, feriados;
-
-function loadData(){ try{ const d=JSON.parse(localStorage.getItem(SK)||'{}'); registros=d.registros||[]; nomes=d.nomes||{}; }catch(e){ registros=[]; nomes={}; } }
-function saveData(){ try{ localStorage.setItem(SK,JSON.stringify({registros,nomes})); }catch(e){} }
-
-function pascoa(y){
-  const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),n=Math.floor((h+l-7*m+114)/31),p=(h+l-7*m+114)%31+1;
-  return new Date(y,n-1,p);
+// ── DB ───────────────────────────────────────
+function loadDB(){
+  try{db=JSON.parse(localStorage.getItem(SK)||'null')||{};}catch(e){db={};}
+  if(!db.registros)db.registros=[];
+  if(!db.senhas)db.senhas={admin:'admin123',barra:'',botafogo:''};
+  if(!db.nomes)db.nomes={barra:'Funcionária — Barra',botafogo:'Funcionária — Botafogo'};
 }
-function ymd(dt){ return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`; }
-function addDays(dt,n){ const d=new Date(dt); d.setDate(d.getDate()+n); return d; }
+function saveDB(){localStorage.setItem(SK,JSON.stringify(db));}
 
+// ── FERIADOS ─────────────────────────────────
+function pascoa(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),n=Math.floor((h+l-7*m+114)/31),p=(h+l-7*m+114)%31+1;return new Date(y,n-1,p);}
+function ymd(dt){return`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;}
+function addDays(dt,n){const d=new Date(dt);d.setDate(d.getDate()+n);return d;}
 function feriadosDoAno(y){
   const f=new Set();
   const add=(m,d)=>f.add(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-  // Nacionais fixos
-  add(1,1); add(4,21); add(5,1); add(9,7); add(10,12); add(11,2); add(11,15); add(11,20); add(12,25);
-  // Estaduais RJ
-  add(1,20); add(4,23); add(10,28);
-  // Móveis
+  add(1,1);add(4,21);add(5,1);add(9,7);add(10,12);add(11,2);add(11,15);add(11,20);add(12,25);
+  add(1,20);add(4,23);add(10,28);
   const p=pascoa(y);
-  f.add(ymd(p));                        // Páscoa
-  f.add(ymd(addDays(p,-2)));            // Sexta-feira Santa
-  f.add(ymd(addDays(p,-48)));           // Carnaval (segunda)
-  f.add(ymd(addDays(p,-47)));           // Carnaval (terça)
-  f.add(ymd(addDays(p, 60)));           // Corpus Christi
+  f.add(ymd(p));f.add(ymd(addDays(p,-2)));f.add(ymd(addDays(p,-48)));f.add(ymd(addDays(p,-47)));f.add(ymd(addDays(p,60)));
   return f;
 }
 
-function hhmm2min(t){ if(!t) return null; const [h,m]=t.split(':').map(Number); return h*60+m; }
-function minToStr(min){
-  const neg=min<0; const abs=Math.abs(min);
-  const h=Math.floor(abs/60), m=abs%60;
-  return (neg?'−':'+')+h+'h'+(m?String(m).padStart(2,'0')+'min':'');
+// ── TEMPO ────────────────────────────────────
+function t2min(t){if(!t)return null;const[h,m]=t.split(':').map(Number);return h*60+m;}
+function minToStr(min,sign=true){
+  if(min===null||min===undefined)return'—';
+  const neg=min<0,abs=Math.abs(min),h=Math.floor(abs/60),m=abs%60;
+  return(sign?(neg?'−':'+'):(neg?'−':''))+h+'h'+(m?String(m).padStart(2,'0')+'min':'');
 }
-
-function calcSaldo(reg, unidade, dow){
-  if(!reg||!reg.entrada||!reg.saida) return null;
+function calcSaldo(reg,unidade,dow){
+  if(!reg||!reg.entrada||!reg.saida)return null;
   const j=JORNADAS[unidade];
-  const trab=hhmm2min(reg.saida)-hhmm2min(reg.entrada)-(unidade==='barra'?j.almoco:0);
+  const trab=t2min(reg.saida)-t2min(reg.entrada)-(unidade==='barra'?j.almoco:0);
   let esp=0;
   if(reg.status==='presente'||reg.status==='meio'){
-    if(unidade==='botafogo'&&dow===6) esp=hhmm2min(j.saidaSab)-hhmm2min(j.entradaSab);
-    else esp=hhmm2min(j.saida)-hhmm2min(j.entrada)-j.almoco;
+    if(unidade==='botafogo'&&dow===6)esp=t2min(j.saidaSab)-t2min(j.entradaSab);
+    else esp=t2min(j.saida)-t2min(j.entrada)-j.almoco;
   }
   return trab-esp;
 }
+function diasNoMes(m,a){return new Date(a,m+1,0).getDate();}
+function getReg(unidade,data){return db.registros.find(r=>r.unidade===unidade&&r.data===data);}
 
-function getNome(id){ return nomes[id]||FUNCIONARIAS.find(f=>f.id===id).nomeDefault; }
-function diasNoMes(m,a){ return new Date(a,m+1,0).getDate(); }
-function getReg(id,data){ return registros.find(r=>r.funcId===id&&r.data===data); }
-
-function initSelects(){
-  const sM=document.getElementById('selMes'), sA=document.getElementById('selAno');
-  const now=new Date(); mes=now.getMonth(); ano=now.getFullYear();
-  MESES.forEach((m,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=m; if(i===mes) o.selected=true; sM.appendChild(o); });
-  for(let y=ano-1;y<=ano+2;y++){ const o=document.createElement('option'); o.value=y; o.textContent=y; if(y===ano) o.selected=true; sA.appendChild(o); }
-  sM.onchange=()=>{ mes=+sM.value; render(); };
-  sA.onchange=()=>{ ano=+sA.value; feriados=feriadosDoAno(ano); render(); };
+function jornadaMensal(unidade,m,a,fer){
+  const j=JORNADAS[unidade],total=diasNoMes(m,a);let min=0;
+  for(let d=1;d<=total;d++){
+    const data=`${a}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow=new Date(a,m,d).getDay();
+    if(fer.has(data)||dow===0)continue;
+    if(dow===6){if(unidade==='botafogo')min+=t2min(j.saidaSab)-t2min(j.entradaSab);continue;}
+    min+=t2min(j.saida)-t2min(j.entrada)-j.almoco;
+  }
+  return min;
+}
+function horasRealizadas(unidade,m,a){
+  let min=0;
+  const prefix=`${a}-${String(m+1).padStart(2,'0')}`;
+  db.registros.filter(r=>r.unidade===unidade&&r.data.startsWith(prefix)).forEach(r=>{
+    if((r.status==='presente'||r.status==='meio')&&r.entrada&&r.saida){
+      const j=JORNADAS[unidade];
+      min+=t2min(r.saida)-t2min(r.entrada)-(unidade==='barra'?j.almoco:0);
+    }
+  });
+  return min;
 }
 
-function initTabs(){
-  const el=document.getElementById('tabsFunc');
-  FUNCIONARIAS.forEach((f,i)=>{
-    const b=document.createElement('button'); b.className='tab'+(i===0?' active':'');
-    b.textContent=f.unidade==='barra'?'Barra da Tijuca':'Botafogo';
-    b.onclick=()=>{ funcIdx=i; document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i)); render(); };
+// ── LOGIN ────────────────────────────────────
+function setLoginTab(tab){
+  loginTab=tab;
+  document.querySelectorAll('.login-tab').forEach((b,i)=>b.classList.toggle('active',['admin','barra','botafogo'][i]===tab));
+  const hints={admin:'Acesso total: ambas as unidades e painel administrativo.',
+               barra:'Acesso restrito à sua unidade — Barra da Tijuca.',
+               botafogo:'Acesso restrito à sua unidade — Botafogo.'};
+  document.getElementById('loginHint').textContent=hints[tab];
+}
+function doLogin(){
+  const pwd=document.getElementById('loginPwd').value;
+  const err=document.getElementById('loginErr');err.textContent='';
+  const stored=db.senhas[loginTab];
+  if(loginTab!=='admin'&&!stored){
+    if(!pwd||pwd.length<4){err.textContent='Crie uma senha com no mínimo 4 caracteres.';return;}
+    db.senhas[loginTab]=pwd;saveDB();entrar(loginTab);return;
+  }
+  if(pwd!==stored){err.textContent='Senha incorreta.';return;}
+  entrar(loginTab);
+}
+function entrar(perfil){
+  sessao=perfil;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('loginPwd').value='';
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('userLabel').textContent=perfil==='admin'?'Administrador':db.nomes[perfil]||({barra:'Barra da Tijuca',botafogo:'Botafogo'}[perfil]);
+  buildViewTabs();buildSelects();feriados=feriadosDoAno(ano);
+  viewAtiva=perfil==='admin'?'barra':perfil;
+  showView('freq');
+}
+function logout(){
+  sessao=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+
+// ── TABS ─────────────────────────────────────
+function buildViewTabs(){
+  const el=document.getElementById('viewTabs');el.innerHTML='';
+  const tabs=sessao==='admin'
+    ?[{id:'freq-barra',label:'Barra da Tijuca'},{id:'freq-botafogo',label:'Botafogo'},{id:'admin',label:'⚙ Painel Admin'}]
+    :[{id:'freq-'+sessao,label:sessao==='barra'?'Barra da Tijuca':'Botafogo'}];
+  tabs.forEach((t,i)=>{
+    const b=document.createElement('button');
+    b.className='view-tab'+(i===0?' active':'');
+    b.textContent=t.label;b.dataset.tid=t.id;
+    b.onclick=()=>{
+      document.querySelectorAll('.view-tab').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      if(t.id==='admin'){showView('admin');renderAdmin();}
+      else{viewAtiva=t.id.replace('freq-','');showView('freq');}
+    };
     el.appendChild(b);
   });
 }
-
-function initModalFunc(){
-  const sel=document.getElementById('mFunc');
-  FUNCIONARIAS.forEach(f=>{ const o=document.createElement('option'); o.value=f.id; o.textContent=f.unidade==='barra'?'Barra da Tijuca':'Botafogo'; sel.appendChild(o); });
+function showView(v){
+  document.getElementById('viewFreq').style.display=v==='freq'?'block':'none';
+  document.getElementById('viewAdmin').style.display=v==='admin'?'block':'none';
+  if(v==='freq')render();
 }
 
-function render(){
-  const func=FUNCIONARIAS[funcIdx];
-  const j=JORNADAS[func.unidade];
-  const total=diasNoMes(mes,ano);
-  const tbody=document.getElementById('tbody');
-  tbody.innerHTML='';
-  let presentes=0,faltas=0,folgas=0,saldoTotal=0;
+// ── SELECTS ───────────────────────────────────
+function buildSelects(){
+  const sM=document.getElementById('selMes'),sA=document.getElementById('selAno');
+  if(sM.children.length)return;
+  const now=new Date();mes=now.getMonth();ano=now.getFullYear();
+  MESES.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;if(i===mes)o.selected=true;sM.appendChild(o);});
+  for(let y=ano-2;y<=ano+1;y++){const o=document.createElement('option');o.value=y;o.textContent=y;if(y===ano)o.selected=true;sA.appendChild(o);}
+  sM.onchange=()=>{mes=+sM.value;render();};
+  sA.onchange=()=>{ano=+sA.value;feriados=feriadosDoAno(ano);render();};
+  const aA=document.getElementById('adminAno');
+  for(let y=ano-2;y<=ano+1;y++){const o=document.createElement('option');o.value=y;o.textContent=y;if(y===ano)o.selected=true;aA.appendChild(o);}
+  aA.onchange=()=>renderAdmin();
+}
 
+// ── RENDER FICHA ──────────────────────────────
+function render(){
+  const u=viewAtiva,j=JORNADAS[u],total=diasNoMes(mes,ano);
+  const tbody=document.getElementById('tbody');tbody.innerHTML='';
+  let presentes=0,faltas=0,folgas=0,saldoTotal=0;
   document.getElementById('jornadaInfo').innerHTML=`<i class="ti ti-clock"></i> ${j.label}`;
+  const jornadaMin=jornadaMensal(u,mes,ano,feriados);
 
   for(let d=1;d<=total;d++){
     const data=`${ano}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dow=new Date(ano,mes,d).getDay();
-    const isSab=dow===6, isSun=dow===0;
-    const isFer=feriados.has(data);
-    const reg=getReg(func.id,data);
-
+    const isSab=dow===6,isSun=dow===0,isFer=feriados.has(data);
+    const reg=getReg(u,data);
     let status=reg?reg.status:null;
-    if(!status&&isFer) status='feriado';
+    if(!status&&isFer)status='feriado';
+    const inativo=isSun||(isSab&&u==='barra')||isFer;
+    if(status==='presente')presentes++;
+    else if(status==='falta')faltas++;
+    else if(status==='folga'||status==='ferias')folgas++;
 
-    const inativo=isSun||(isSab&&func.unidade==='barra')||isFer;
-
-    if(status==='presente') presentes++;
-    else if(status==='falta') faltas++;
-    else if(status==='folga'||status==='ferias') folgas++;
-
-    let saldoMin=null, saldoHtml='<span style="color:var(--text3)">—</span>';
+    let saldoMin=null,saldoHtml='<span style="color:var(--text3)">—</span>';
     if(reg&&(reg.status==='presente'||reg.status==='meio')&&reg.entrada&&reg.saida){
-      saldoMin=calcSaldo(reg,func.unidade,dow);
-      saldoTotal+=saldoMin;
+      saldoMin=calcSaldo(reg,u,dow);saldoTotal+=saldoMin;
       saldoHtml=`<span class="${saldoMin>0?'saldo-pos':saldoMin<0?'saldo-neg':'saldo-zer'}">${minToStr(saldoMin)}</span>`;
     }
-
-    const badgeHtml=status
-      ?`<span class="badge ${STATUS_META[status]?.cls||'badge-folga'}">${STATUS_META[status]?.label||status}</span>`
-      :'<span style="color:var(--text3);font-size:11px">—</span>';
-
+    const badgeHtml=status?`<span class="badge ${STATUS_META[status]?.cls}">${STATUS_META[status]?.label}</span>`:'<span style="color:var(--text3)">—</span>';
     const tr=document.createElement('tr');
-    if(inativo) tr.className='dim';
-
+    if(inativo)tr.className='row-dim';
     tr.innerHTML=`
-      <td>${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}</td>
-      <td style="color:var(--text2)">${DIAS[dow]}</td>
-      <td>${badgeHtml}</td>
-      <td style="color:var(--text2)">${reg&&reg.entrada||'—'}</td>
-      <td style="color:var(--text2)">${reg&&reg.saida||'—'}</td>
+      <td class="mono">${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}</td>
+      <td style="color:var(--text2)">${DIAS[dow]}</td><td>${badgeHtml}</td>
+      <td class="mono" style="color:var(--text2)">${reg&&reg.entrada||'—'}</td>
+      <td class="mono" style="color:var(--text2)">${reg&&reg.saida||'—'}</td>
       <td>${saldoHtml}</td>
-      <td style="color:var(--text2);font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis">${reg&&reg.obs||''}</td>
-      <td>${!inativo||reg?`<button class="edit-btn" onclick="editarDia('${data}',${dow})" title="Editar"><i class="ti ti-edit"></i></button>`:''}</td>`;
+      <td style="color:var(--text3);font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis">${reg&&reg.obs||''}</td>
+      <td>${!inativo||reg?`<button class="edit-btn" onclick="editarDia('${data}',${dow})"><i class="ti ti-edit"></i></button>`:''}</td>`;
     tbody.appendChild(tr);
   }
 
   const diasUteis=Array.from({length:total},(_,i)=>i+1).filter(d=>{
     const data=`${ano}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dow=new Date(ano,mes,d).getDay();
-    if(func.unidade==='barra') return dow!==0&&dow!==6&&!feriados.has(data);
-    return dow!==0&&!feriados.has(data);
+    return u==='barra'?dow!==0&&dow!==6&&!feriados.has(data):dow!==0&&!feriados.has(data);
   }).length;
 
   const pct=diasUteis>0?Math.round((presentes/diasUteis)*100):0;
+  const realMin=horasRealizadas(u,mes,ano);
+
   document.getElementById('summary').innerHTML=`
-    <div class="stat"><div class="stat-label">Dias úteis</div><div class="stat-value">${diasUteis}</div></div>
+    <div class="stat"><div class="stat-label">Jornada prevista</div><div class="stat-value" style="font-size:17px;">${minToStr(jornadaMin,false)}</div><div class="stat-sub">${diasUteis} dias úteis</div></div>
+    <div class="stat"><div class="stat-label">Horas realizadas</div><div class="stat-value ${realMin>=jornadaMin?'ok':'warn'}" style="font-size:17px;">${minToStr(realMin,false)}</div></div>
+    <div class="stat"><div class="stat-label">Saldo do mês</div><div class="stat-value ${saldoTotal>=0?'ok':'bad'}">${saldoTotal===0?'0h':minToStr(saldoTotal)}</div></div>
     <div class="stat"><div class="stat-label">Presentes</div><div class="stat-value ok">${presentes}</div></div>
     <div class="stat"><div class="stat-label">Faltas</div><div class="stat-value ${faltas>0?'bad':''}">${faltas}</div></div>
-    <div class="stat"><div class="stat-label">Folgas/Férias</div><div class="stat-value">${folgas}</div></div>
-    <div class="stat"><div class="stat-label">Saldo do mês</div><div class="stat-value ${saldoTotal>=0?'ok':'bad'}">${saldoTotal===0?'0h':minToStr(saldoTotal)}</div></div>
     <div class="stat"><div class="stat-label">Frequência</div><div class="stat-value ${pct>=90?'ok':pct>=75?'warn':'bad'}">${pct}%</div></div>`;
 
-  document.getElementById('legend').innerHTML=Object.entries(STATUS_META).map(([,v])=>`<span class="badge ${v.cls}">${v.label}</span>`).join('');
+  document.getElementById('legend').innerHTML=Object.values(STATUS_META).map(v=>`<span class="badge ${v.cls}">${v.label}</span>`).join('');
 }
 
+// ── MODAL LANÇAR ─────────────────────────────
 function editarDia(data,dow){
-  const func=FUNCIONARIAS[funcIdx];
-  const j=JORNADAS[func.unidade];
-  const reg=getReg(func.id,data);
-  const isSab=dow===6;
-  const ep=(func.unidade==='botafogo'&&isSab)?j.entradaSab:j.entrada;
-  const sp=(func.unidade==='botafogo'&&isSab)?j.saidaSab:j.saida;
-  document.getElementById('mFunc').value=func.id;
-  document.getElementById('mNome').value=getNome(func.id);
+  const j=JORNADAS[viewAtiva],reg=getReg(viewAtiva,data),isSab=dow===6;
+  const ep=(viewAtiva==='botafogo'&&isSab)?j.entradaSab:j.entrada;
+  const sp=(viewAtiva==='botafogo'&&isSab)?j.saidaSab:j.saida;
   document.getElementById('mData').value=data;
   document.getElementById('mStatus').value=reg?reg.status:'presente';
   document.getElementById('mEntrada').value=reg?(reg.entrada||ep):ep;
@@ -350,13 +476,8 @@ function editarDia(data,dow){
   document.getElementById('mObs').value=reg?(reg.obs||''):'';
   document.getElementById('overlay').classList.add('open');
 }
-
 function abrirModal(){
-  const func=FUNCIONARIAS[funcIdx];
-  const j=JORNADAS[func.unidade];
-  const now=new Date();
-  document.getElementById('mFunc').value=func.id;
-  document.getElementById('mNome').value=getNome(func.id);
+  const j=JORNADAS[viewAtiva],now=new Date();
   document.getElementById('mData').value=`${ano}-${String(mes+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   document.getElementById('mStatus').value='presente';
   document.getElementById('mEntrada').value=j.entrada;
@@ -364,53 +485,204 @@ function abrirModal(){
   document.getElementById('mObs').value='';
   document.getElementById('overlay').classList.add('open');
 }
-
-function fecharModal(){ document.getElementById('overlay').classList.remove('open'); }
-
+function fecharModal(){document.getElementById('overlay').classList.remove('open');}
 function salvar(){
-  const funcId=document.getElementById('mFunc').value;
-  const nome=document.getElementById('mNome').value.trim();
-  const data=document.getElementById('mData').value;
-  const status=document.getElementById('mStatus').value;
-  const entrada=document.getElementById('mEntrada').value;
-  const saida=document.getElementById('mSaida').value;
-  const obs=document.getElementById('mObs').value;
-  if(!data) return;
-  if(nome) nomes[funcId]=nome;
-  const idx=registros.findIndex(r=>r.funcId===funcId&&r.data===data);
-  const rec={funcId,data,status,entrada,saida,obs};
-  if(idx>=0) registros[idx]=rec; else registros.push(rec);
-  saveData(); fecharModal(); render();
+  const data=document.getElementById('mData').value;if(!data)return;
+  const rec={unidade:viewAtiva,data,status:document.getElementById('mStatus').value,
+    entrada:document.getElementById('mEntrada').value,saida:document.getElementById('mSaida').value,
+    obs:document.getElementById('mObs').value};
+  const idx=db.registros.findIndex(r=>r.unidade===viewAtiva&&r.data===data);
+  if(idx>=0)db.registros[idx]=rec;else db.registros.push(rec);
+  saveDB();fecharModal();render();
 }
 
-function exportarCSV(){
-  const func=FUNCIONARIAS[funcIdx];
-  const j=JORNADAS[func.unidade];
-  const nome=getNome(func.id);
-  const total=diasNoMes(mes,ano);
-  let csv=`Funcionária:,${nome}\nUnidade:,${func.unidade==='barra'?'Barra da Tijuca':'Botafogo'}\nJornada:,${j.label}\nMês:,${MESES[mes]} ${ano}\n\n`;
-  csv+='Data,Dia,Status,Entrada,Saída,Saldo,Observação\n';
+// ── MODAL SENHA ───────────────────────────────
+function abrirTrocarSenha(){document.getElementById('overlayPwd').classList.add('open');document.getElementById('pwdErr').textContent='';}
+function fecharPwd(){document.getElementById('overlayPwd').classList.remove('open');}
+function salvarSenha(){
+  const atual=document.getElementById('pwdAtual').value;
+  const nova=document.getElementById('pwdNova').value;
+  const conf=document.getElementById('pwdConfirm').value;
+  const err=document.getElementById('pwdErr');
+  if(atual!==db.senhas[sessao]){err.textContent='Senha atual incorreta.';return;}
+  if(nova.length<4){err.textContent='Nova senha deve ter ao menos 4 caracteres.';return;}
+  if(nova!==conf){err.textContent='As senhas não coincidem.';return;}
+  db.senhas[sessao]=nova;saveDB();fecharPwd();
+  ['pwdAtual','pwdNova','pwdConfirm'].forEach(id=>document.getElementById(id).value='');
+  alert('Senha alterada com sucesso!');
+}
+
+// ── PAINEL ADMIN ──────────────────────────────
+function renderAdmin(){
+  const aAno=+document.getElementById('adminAno').value;
+  const fer=feriadosDoAno(aAno);
+  let html='<div class="admin-grid">';
+  ['barra','botafogo'].forEach(u=>{
+    const nome=db.nomes[u];
+    html+=`<div class="admin-card">
+      <div class="admin-card-head"><i class="ti ti-user" style="color:var(--accent)"></i>
+        <span class="aname">${nome}</span>
+        <span class="aunit">${u==='barra'?'Barra da Tijuca':'Botafogo'}</span>
+      </div>
+      <table class="admin-table">
+        <thead><tr><th>Mês</th><th>Previsto</th><th>Realizado</th><th>Saldo</th></tr></thead><tbody>`;
+    let tP=0,tR=0;
+    for(let m=0;m<12;m++){
+      const prev=jornadaMensal(u,m,aAno,fer);
+      const real=horasRealizadas(u,m,aAno);
+      const saldo=real-prev;tP+=prev;tR+=real;
+      html+=`<tr><td>${MESES[m]}</td>
+        <td class="mono" style="color:var(--text2)">${minToStr(prev,false)}</td>
+        <td class="mono" style="color:var(--text2)">${real>0?minToStr(real,false):'—'}</td>
+        <td class="mono ${saldo>0?'saldo-pos':saldo<0?'saldo-neg':'saldo-zer'}">${real>0?minToStr(saldo):'—'}</td></tr>`;
+    }
+    const st=tR-tP;
+    html+=`<tr class="total-row"><td>Total ${aAno}</td>
+      <td class="mono">${minToStr(tP,false)}</td>
+      <td class="mono">${tR>0?minToStr(tR,false):'—'}</td>
+      <td class="mono ${st>0?'saldo-pos':st<0?'saldo-neg':'saldo-zer'}">${tR>0?minToStr(st):'—'}</td></tr>`;
+    html+=`</tbody></table></div>`;
+  });
+  html+='</div>';
+  document.getElementById('adminContent').innerHTML=html;
+
+  let pwdHtml='<div style="display:flex;flex-direction:column;gap:8px;">';
+  ['barra','botafogo'].forEach(u=>{
+    pwdHtml+=`<div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;">
+      <span style="font-size:13px;flex:1;">${u==='barra'?'Barra da Tijuca':'Botafogo'} — ${db.nomes[u]}</span>
+      <span style="font-size:12px;color:var(--text3)">${db.senhas[u]?'Senha definida':'Sem senha (define no 1º login)'}</span>
+      ${db.senhas[u]?`<button class="btn btn-sm btn-danger" onclick="resetarSenha('${u}')"><i class="ti ti-refresh"></i> Resetar</button>`:''}
+    </div>`;
+  });
+  pwdHtml+='</div>';
+  document.getElementById('adminPwdPanel').innerHTML=pwdHtml;
+}
+
+function resetarSenha(u){
+  if(!confirm(`Resetar senha de ${u==='barra'?'Barra da Tijuca':'Botafogo'}? A funcionária criará nova senha no próximo login.`))return;
+  db.senhas[u]='';saveDB();renderAdmin();
+}
+
+// ── EXPORT XLS FICHA ─────────────────────────
+function exportXLS(){
+  const u=viewAtiva,j=JORNADAS[u],total=diasNoMes(mes,ano);
+  const jornadaMin=jornadaMensal(u,mes,ano,feriados);
+  const rows=[];
+  rows.push([`Funcionária: ${db.nomes[u]}`]);
+  rows.push([`Unidade: ${u==='barra'?'Barra da Tijuca':'Botafogo'}`]);
+  rows.push([`Jornada: ${j.label}`]);
+  rows.push([`Mês: ${MESES[mes]} ${ano}`]);
+  rows.push([`Jornada prevista no mês: ${minToStr(jornadaMin,false)}`]);
+  rows.push([]);
+  rows.push(['Data','Dia','Status','Entrada','Saída','Saldo dia','Observação']);
   let acc=0;
   for(let d=1;d<=total;d++){
     const data=`${ano}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dow=new Date(ano,mes,d).getDay();
-    const reg=getReg(func.id,data);
-    let status=reg?reg.status:''; if(!status&&feriados.has(data)) status='feriado';
+    const reg=getReg(u,data);
+    let status=reg?reg.status:'';if(!status&&feriados.has(data))status='feriado';
     let sStr='';
     if(reg&&(reg.status==='presente'||reg.status==='meio')&&reg.entrada&&reg.saida){
-      const s=calcSaldo(reg,func.unidade,dow); acc+=s; sStr=minToStr(s);
+      const s=calcSaldo(reg,u,dow);acc+=s;sStr=minToStr(s);
     }
-    csv+=`${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}/${ano},${DIAS[dow]},${STATUS_META[status]?.label||status||''},${reg?reg.entrada||'':''},${reg?reg.saida||'':''},${sStr},"${reg?reg.obs||'':''}"\n`;
+    rows.push([`${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}/${ano}`,DIAS[dow],
+      STATUS_META[status]?.label||status||'',reg?reg.entrada||'':'',reg?reg.saida||'':'',sStr,reg?reg.obs||'':'']);
   }
-  csv+=`\n,,,,Saldo total:,${minToStr(acc)},\n`;
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`frequencia_${func.unidade}_${MESES[mes]}_${ano}.csv`;
-  a.click();
+  rows.push([]);rows.push(['','','','','Saldo total:',minToStr(acc),'']);
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:14},{wch:6},{wch:14},{wch:10},{wch:10},{wch:12},{wch:30}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,`${MESES[mes]} ${ano}`);
+  XLSX.writeFile(wb,`frequencia_${u}_${MESES[mes]}_${ano}.xlsx`);
 }
 
-document.getElementById('overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) fecharModal(); });
-loadData(); initSelects(); feriados=feriadosDoAno(ano); initTabs(); initModalFunc(); render();
+// ── EXPORT PDF FICHA ─────────────────────────
+function exportPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const u=viewAtiva,j=JORNADAS[u],total=diasNoMes(mes,ano);
+  const jornadaMin=jornadaMensal(u,mes,ano,feriados);
+  doc.setFontSize(16);doc.setFont(undefined,'bold');
+  doc.text('Yris Saúde — Ficha de Frequência',14,18);
+  doc.setFontSize(10);doc.setFont(undefined,'normal');
+  doc.text(`Funcionária: ${db.nomes[u]}`,14,26);
+  doc.text(`Unidade: ${u==='barra'?'Barra da Tijuca':'Botafogo'}`,14,31);
+  doc.text(`Jornada: ${j.label}`,14,36);
+  doc.text(`Mês: ${MESES[mes]} ${ano}   |   Jornada prevista: ${minToStr(jornadaMin,false)}`,14,41);
+  const rows=[];let acc=0;
+  for(let d=1;d<=total;d++){
+    const data=`${ano}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow=new Date(ano,mes,d).getDay();
+    const reg=getReg(u,data);
+    let status=reg?reg.status:'';if(!status&&feriados.has(data))status='feriado';
+    let sStr='';
+    if(reg&&(reg.status==='presente'||reg.status==='meio')&&reg.entrada&&reg.saida){
+      const s=calcSaldo(reg,u,dow);acc+=s;sStr=minToStr(s);
+    }
+    rows.push([`${String(d).padStart(2,'0')}/${String(mes+1).padStart(2,'0')}`,DIAS[dow],
+      STATUS_META[status]?.label||status||'',reg?reg.entrada||'':'',reg?reg.saida||'':'',sStr,reg?reg.obs||'':'']);
+  }
+  rows.push(['','','','','Saldo total:',minToStr(acc),'']);
+  doc.autoTable({startY:46,head:[['Data','Dia','Status','Entrada','Saída','Saldo','Obs']],body:rows,
+    styles:{fontSize:8,cellPadding:2},
+    headStyles:{fillColor:[20,20,18],textColor:[220,220,210],fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[248,248,245]},
+    columnStyles:{0:{cellWidth:18},1:{cellWidth:10},2:{cellWidth:24},3:{cellWidth:16},4:{cellWidth:16},5:{cellWidth:18},6:{cellWidth:50}}});
+  doc.save(`frequencia_${u}_${MESES[mes]}_${ano}.pdf`);
+}
+
+// ── EXPORT ADMIN XLS ─────────────────────────
+function exportAdminXLS(){
+  const aAno=+document.getElementById('adminAno').value;
+  const fer=feriadosDoAno(aAno);
+  const wb=XLSX.utils.book_new();
+  ['barra','botafogo'].forEach(u=>{
+    const rows=[[`Funcionária: ${db.nomes[u]}`],[`Unidade: ${u==='barra'?'Barra da Tijuca':'Botafogo'}`],[`Ano: ${aAno}`],[],
+      ['Mês','Previsto','Realizado','Saldo']];
+    let tP=0,tR=0;
+    for(let m=0;m<12;m++){
+      const prev=jornadaMensal(u,m,aAno,fer),real=horasRealizadas(u,m,aAno);
+      tP+=prev;tR+=real;
+      rows.push([MESES[m],minToStr(prev,false),real>0?minToStr(real,false):'—',real>0?minToStr(real-prev):'—']);
+    }
+    rows.push(['Total',minToStr(tP,false),tR>0?minToStr(tR,false):'—',tR>0?minToStr(tR-tP):'—']);
+    const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:14},{wch:14},{wch:14},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,ws,u==='barra'?'Barra':'Botafogo');
+  });
+  XLSX.writeFile(wb,`banco_horas_${aAno}.xlsx`);
+}
+
+// ── EXPORT ADMIN PDF ─────────────────────────
+function exportAdminPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const aAno=+document.getElementById('adminAno').value;
+  const fer=feriadosDoAno(aAno);
+  doc.setFontSize(16);doc.setFont(undefined,'bold');doc.text('Yris Saúde — Banco de Horas',14,18);
+  doc.setFontSize(10);doc.setFont(undefined,'normal');doc.text(`Ano: ${aAno}`,14,25);
+  let startY=30;
+  ['barra','botafogo'].forEach(u=>{
+    doc.setFontSize(11);doc.setFont(undefined,'bold');
+    doc.text(`${db.nomes[u]} — ${u==='barra'?'Barra da Tijuca':'Botafogo'}`,14,startY);
+    doc.setFont(undefined,'normal');
+    const rows=[];let tP=0,tR=0;
+    for(let m=0;m<12;m++){
+      const prev=jornadaMensal(u,m,aAno,fer),real=horasRealizadas(u,m,aAno);
+      tP+=prev;tR+=real;
+      rows.push([MESES[m],minToStr(prev,false),real>0?minToStr(real,false):'—',real>0?minToStr(real-prev):'—']);
+    }
+    rows.push(['Total',minToStr(tP,false),tR>0?minToStr(tR,false):'—',tR>0?minToStr(tR-tP):'—']);
+    doc.autoTable({startY:startY+5,head:[['Mês','Previsto','Realizado','Saldo']],body:rows,
+      styles:{fontSize:9,cellPadding:2.5},
+      headStyles:{fillColor:[20,20,18],textColor:[220,220,210],fontStyle:'bold'},
+      alternateRowStyles:{fillColor:[248,248,245]}});
+    startY=doc.lastAutoTable.finalY+14;
+  });
+  doc.save(`banco_horas_${aAno}.pdf`);
+}
+
+// ── INIT ─────────────────────────────────────
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+loadDB();
 </script>
 </body>
 </html>
