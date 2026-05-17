@@ -245,6 +245,7 @@ tr:hover td{background:var(--bg3);}
 <script>
 // ── CONSTANTES ──────────────────────────────
 const SK='yris_v4';
+const SENHA_PADRAO='Yris2026';
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DIAS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const JORNADAS={
@@ -266,8 +267,13 @@ let db={},sessao=null,viewAtiva='barra',loginTab='admin',mes,ano,feriados;
 function loadDB(){
   try{db=JSON.parse(localStorage.getItem(SK)||'null')||{};}catch(e){db={};}
   if(!db.registros)db.registros=[];
-  if(!db.senhas)db.senhas={admin:'admin123',barra:'',botafogo:''};
+  if(!db.senhas)db.senhas={};
+  if(!db.senhas.admin)db.senhas.admin='admin123';
+  if(!db.senhas.barra)db.senhas.barra=SENHA_PADRAO;
+  if(!db.senhas.botafogo)db.senhas.botafogo=SENHA_PADRAO;
+  if(db.primeiroAcesso===undefined)db.primeiroAcesso={barra:true,botafogo:true};
   if(!db.nomes)db.nomes={barra:'Funcionária — Barra',botafogo:'Funcionária — Botafogo'};
+  saveDB();
 }
 function saveDB(){localStorage.setItem(SK,JSON.stringify(db));}
 
@@ -341,12 +347,15 @@ function setLoginTab(tab){
 function doLogin(){
   const pwd=document.getElementById('loginPwd').value;
   const err=document.getElementById('loginErr');err.textContent='';
+  if(!pwd){err.textContent='Digite a senha.';return;}
   const stored=db.senhas[loginTab];
-  if(loginTab!=='admin'&&!stored){
-    if(!pwd||pwd.length<4){err.textContent='Crie uma senha com no mínimo 4 caracteres.';return;}
-    db.senhas[loginTab]=pwd;saveDB();entrar(loginTab);return;
-  }
   if(pwd!==stored){err.textContent='Senha incorreta.';return;}
+  // Verifica primeiro acesso de funcionaria
+  if(loginTab!=='admin'&&db.primeiroAcesso&&db.primeiroAcesso[loginTab]){
+    entrar(loginTab);
+    abrirTrocaSenhaObrigatoria();
+    return;
+  }
   entrar(loginTab);
 }
 function entrar(perfil){
@@ -550,8 +559,8 @@ function renderAdmin(){
   ['barra','botafogo'].forEach(u=>{
     pwdHtml+=`<div style="display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;">
       <span style="font-size:13px;flex:1;">${u==='barra'?'Barra da Tijuca':'Botafogo'} — ${db.nomes[u]}</span>
-      <span style="font-size:12px;color:var(--text3)">${db.senhas[u]?'Senha definida':'Sem senha (define no 1º login)'}</span>
-      ${db.senhas[u]?`<button class="btn btn-sm btn-danger" onclick="resetarSenha('${u}')"><i class="ti ti-refresh"></i> Resetar</button>`:''}
+      <span style="font-size:12px;color:var(--text3)">${db.primeiroAcesso&&db.primeiroAcesso[u]?'Usando senha padrão (nunca alterou)':'Senha personalizada definida'}</span>
+      `<button class="btn btn-sm btn-danger" onclick="resetarSenha('${u}')"><i class="ti ti-refresh"></i> Resetar para padrão</button>`
     </div>`;
   });
   pwdHtml+='</div>';
@@ -560,7 +569,7 @@ function renderAdmin(){
 
 function resetarSenha(u){
   if(!confirm(`Resetar senha de ${u==='barra'?'Barra da Tijuca':'Botafogo'}? A funcionária criará nova senha no próximo login.`))return;
-  db.senhas[u]='';saveDB();renderAdmin();
+  db.senhas[u]=SENHA_PADRAO;db.primeiroAcesso[u]=true;saveDB();renderAdmin();
 }
 
 // ── EXPORT XLS FICHA ─────────────────────────
@@ -680,9 +689,47 @@ function exportAdminPDF(){
   doc.save(`banco_horas_${aAno}.pdf`);
 }
 
+
+// ── TROCA SENHA OBRIGATÓRIA ──────────────────
+function abrirTrocaSenhaObrigatoria(){
+  document.getElementById('obrigNova').value='';
+  document.getElementById('obrigConfirm').value='';
+  document.getElementById('obrigErr').textContent='';
+  document.getElementById('overlayPwdObrig').classList.add('open');
+}
+function salvarSenhaObrigatoria(){
+  const nova=document.getElementById('obrigNova').value;
+  const conf=document.getElementById('obrigConfirm').value;
+  const err=document.getElementById('obrigErr');
+  if(nova.length<4){err.textContent='Senha deve ter ao menos 4 caracteres.';return;}
+  if(nova!==conf){err.textContent='As senhas não coincidem.';return;}
+  db.senhas[sessao]=nova;
+  db.primeiroAcesso[sessao]=false;
+  saveDB();
+  document.getElementById('overlayPwdObrig').classList.remove('open');
+}
+
 // ── INIT ─────────────────────────────────────
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 loadDB();
 </script>
+
+<!-- MODAL TROCA SENHA OBRIGATORIA -->
+<div class="overlay" id="overlayPwdObrig">
+  <div class="modal">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <i class="ti ti-shield-lock" style="font-size:22px;color:var(--accent)"></i>
+      <h3 style="margin:0;">Bem-vinda ao sistema!</h3>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.6;">Este é seu primeiro acesso. Por segurança, crie uma senha pessoal para substituir a senha padrão.</p>
+    <div class="field"><label>Nova senha (mín. 4 caracteres)</label><input type="password" id="obrigNova" placeholder="••••••••"/></div>
+    <div class="field"><label>Confirmar nova senha</label><input type="password" id="obrigConfirm" placeholder="••••••••"/></div>
+    <div class="modal-err" id="obrigErr"></div>
+    <div class="modal-footer">
+      <button class="btn btn-accent" onclick="salvarSenhaObrigatoria()">Definir minha senha</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
